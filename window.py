@@ -49,6 +49,8 @@ class WindowApp(QMainWindow):
         self.deletebtn.clicked.connect(self.deletefnc)
 
     def watchfnc(self):
+        self.connection = mysql.connector.connect(host=preference['host'], user=preference['user'],
+                                                  passwd=preference['password'], database=preference['db_name'])
         self.data = execute_read_query(self.connection, f"SELECT * FROM {self.watchbox.currentText()}")
         print(self.data)
         if len(self.data) > 0:
@@ -130,6 +132,7 @@ class WindowApp(QMainWindow):
                 try:
                     self.data = execute_read_query(self.connection,
                                                    f"INSERT INTO {self.watchbox.currentText()}  VALUES ({queryargs})")
+                    print(self.data)
                     self.watchfnc()
                 except Exception as e:
                     QMessageBox(self).setText(e).show()
