@@ -138,8 +138,15 @@ class WindowApp(QMainWindow):
                     QMessageBox(self).setText(e).show()
             case 'edit':
                 try:
-                    self.data = execute_read_query(self.connection,
-                                                   f"UPDATE {self.watchbox.currentText()} SET VALUES ({queryargs}) where id_{self.watchbox.currentText()} = {queryargs.split(',')[0]}")
+                    self.column_name = execute_read_query(self.connection, f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='preupmoney' and TABLE_NAME = '{self.watchbox.currentText()}' ORDER BY ORDINAL_POSITION")
+                    print(self.column_name)
+                    queryarr = queryargs.split(',')
+                    query_end = f"UPDATE {self.watchbox.currentText()} SET"
+                    for i in range(len(self.column_name)):
+                        query_end += f" {self.column_name[i][0]} ={queryarr[i]}, "
+                    query_end = query_end[0:len(query_end)-2] + f" where id_{self.watchbox.currentText()} = {queryargs.split(',')[0]}"
+                    print(query_end)
+                    self.data = execute_read_query(self.connection, query_end)
                     self.watchfnc()
                 except Exception as e:
                     QMessageBox(self).setText(e).show()
